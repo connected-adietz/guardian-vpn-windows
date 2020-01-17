@@ -18,6 +18,7 @@ namespace FirefoxPrivateNetwork.FxA
     /// </summary>
     public class ServerList
     {
+        private const string DefaultServerCountry = "USA";
         private List<Models.ServerListItem> serverData;
         private Dictionary<int, VPNServer> vpnServers;
 
@@ -88,7 +89,7 @@ namespace FirefoxPrivateNetwork.FxA
 
             if (string.IsNullOrEmpty(value))
             {
-                serverIndex = vpnServers.FirstOrDefault(x => x.Value.Country == "USA").Key;
+                serverIndex = vpnServers.FirstOrDefault(x => x.Value.Country == DefaultServerCountry).Key;
             }
             else
             {
