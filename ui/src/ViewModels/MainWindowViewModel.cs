@@ -16,6 +16,9 @@ namespace FirefoxPrivateNetwork.ViewModels
     /// </summary>
     public class MainWindowViewModel : INotifyPropertyChanged
     {
+        // Default Initial Server Country
+        private const string DefaultServerCountry = "USA";
+
         // Connection Status Properties
         private readonly Models.ConnectionStatus connectionStatus;
         private string connectionTime = "00:00:00";
@@ -565,7 +568,7 @@ namespace FirefoxPrivateNetwork.ViewModels
             }
             catch (Exception)
             {
-                serverListSelectedItem = FxA.Cache.FxAServerList.GetServerList()[0];
+                serverListSelectedItem = FxA.Cache.FxAServerList.GetServerList().FirstOrDefault(x => x.Country == DefaultServerCountry);
             }
         }
 
