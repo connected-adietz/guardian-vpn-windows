@@ -69,6 +69,9 @@ namespace FirefoxPrivateNetwork.FxA
             // Initialize a new login session configuration
             Manager.Account.Config = new FxA.Config(fxaJson);
 
+            // Sets a value that a user has just logged in
+            Manager.MainWindowViewModel.NewUserSignIn = true;
+
             // Generate a new WireGuard keypair in preparation for adding a new Account device
             var keys = WireGuard.Keypair.Generate();
             Manager.Account.Config.FxALogin.PublicKey = keys.Public;
@@ -90,15 +93,6 @@ namespace FirefoxPrivateNetwork.FxA
             {
                 var conf = new WireGuard.Config(keys.Private, deviceAddResponse.IPv4Address + "," + deviceAddResponse.IPv6Address, string.Empty);
                 conf.WriteToFile(ProductConstants.FirefoxPrivateNetworkConfFile);
-
-                var serverListSelectedItem = Manager.MainWindowViewModel.ServerListSelectedItem;
-
-                if (!string.IsNullOrEmpty(serverListSelectedItem.Endpoint))
-                {
-                    conf = new WireGuard.Config(ProductConstants.FirefoxPrivateNetworkConfFile);
-                    var currentServer = FxA.Cache.FxAServerList.GetServerByIP(Manager.MainWindowViewModel.ServerListSelectedItem.Endpoint);
-                    conf.SetEndpoint(serverListSelectedItem.Endpoint, currentServer.PublicKey, ProductConstants.AllowedIPs, currentServer.DNSServerAddress);
-                }
 
                 return true;
             }

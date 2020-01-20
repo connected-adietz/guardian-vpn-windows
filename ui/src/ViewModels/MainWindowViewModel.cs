@@ -50,6 +50,8 @@ namespace FirefoxPrivateNetwork.ViewModels
         // Indicates whether the application has ran on startup
         private bool ranOnStartup;
 
+        private bool newUserSignIn;
+
         // Language properties
         private List<CultureInfo> additionalLanguagesList;
 
@@ -507,6 +509,18 @@ namespace FirefoxPrivateNetwork.ViewModels
         }
 
         /// <summary>
+        /// Sets a value indicating whether a user has just signed in.
+        /// </summary>
+        public bool NewUserSignIn
+        {
+            set
+            {
+                newUserSignIn = value;
+                OnPropertyChanged("NewUserSignIn");
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the list of additional languages, based on the number of Fluent languages included with the application.
         /// </summary>
         public List<CultureInfo> AdditionalLanguagesList
@@ -552,8 +566,10 @@ namespace FirefoxPrivateNetwork.ViewModels
             {
                 var previouslySelectedServerIndex = 0;
 
-                if (initialLoad)
+                if (initialLoad || newUserSignIn)
                 {
+                    newUserSignIn = false;
+
                     // Get the saved WireGuard configuration
                     var configuration = new WireGuard.Config(ProductConstants.FirefoxPrivateNetworkConfFile);
                     previouslySelectedServerIndex = FxA.Cache.FxAServerList.GetServerIndexByIP(configuration.GetPeerEndpointWithoutPort());
@@ -568,7 +584,9 @@ namespace FirefoxPrivateNetwork.ViewModels
             }
             catch (Exception)
             {
-                serverListSelectedItem = FxA.Cache.FxAServerList.GetServerList().FirstOrDefault(x => x.Country == DefaultServerCountry);
+                Random rand = new Random();
+                var serversInDefaultServerCounty = FxA.Cache.FxAServerList.GetServerList().Where(x => x.Country == DefaultServerCountry);
+                serverListSelectedItem = serversInDefaultServerCounty.ElementAt(rand.Next(0, serversInDefaultServerCounty.Count()));
             }
         }
 
