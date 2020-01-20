@@ -91,6 +91,15 @@ namespace FirefoxPrivateNetwork.FxA
                 var conf = new WireGuard.Config(keys.Private, deviceAddResponse.IPv4Address + "," + deviceAddResponse.IPv6Address, string.Empty);
                 conf.WriteToFile(ProductConstants.FirefoxPrivateNetworkConfFile);
 
+                var serverListSelectedItem = Manager.MainWindowViewModel.ServerListSelectedItem;
+
+                if (!string.IsNullOrEmpty(serverListSelectedItem.Endpoint))
+                {
+                    conf = new WireGuard.Config(ProductConstants.FirefoxPrivateNetworkConfFile);
+                    var currentServer = FxA.Cache.FxAServerList.GetServerByIP(Manager.MainWindowViewModel.ServerListSelectedItem.Endpoint);
+                    conf.SetEndpoint(serverListSelectedItem.Endpoint, currentServer.PublicKey, ProductConstants.AllowedIPs, currentServer.DNSServerAddress);
+                }
+
                 return true;
             }
 
