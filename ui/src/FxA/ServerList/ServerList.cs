@@ -93,6 +93,15 @@ namespace FirefoxPrivateNetwork.FxA
                 Random rand = new Random();
                 var serversInDefaultServerCounty = vpnServers.Where(x => x.Value.Country == DefaultServerCountry).ToDictionary(x => x.Key, x => x.Value);
                 serverIndex = serversInDefaultServerCounty.ElementAt(rand.Next(0, serversInDefaultServerCounty.Count)).Key;
+
+                if (serversInDefaultServerCounty.Count() > 0)
+                {
+                    serverIndex = serversInDefaultServerCounty.ElementAt(rand.Next(0, serversInDefaultServerCounty.Count)).Key;
+                }
+                else
+                {
+                    serverIndex = vpnServers.ElementAt(rand.Next(0, vpnServers.Count)).Key;
+                }
             }
             else
             {

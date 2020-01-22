@@ -586,7 +586,15 @@ namespace FirefoxPrivateNetwork.ViewModels
             {
                 Random rand = new Random();
                 var serversInDefaultServerCounty = FxA.Cache.FxAServerList.GetServerList().Where(x => x.Country == DefaultServerCountry);
-                serverListSelectedItem = serversInDefaultServerCounty.ElementAt(rand.Next(0, serversInDefaultServerCounty.Count()));
+
+                if (serversInDefaultServerCounty.Count() > 0)
+                {
+                    serverListSelectedItem = serversInDefaultServerCounty.ElementAt(rand.Next(0, serversInDefaultServerCounty.Count()));
+                }
+                else
+                {
+                    serverListSelectedItem = FxA.Cache.FxAServerList.GetServerList()[rand.Next(0, FxA.Cache.FxAServerList.GetServerList().Count)];
+                }
             }
         }
 
