@@ -4,7 +4,12 @@
 
 using System;
 using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Runtime.Caching;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace FirefoxPrivateNetwork
 {
@@ -13,6 +18,12 @@ namespace FirefoxPrivateNetwork
     /// </summary>
     internal class Manager
     {
+
+        /// <summary>
+        /// Gets or sets cache for avatar image.
+        /// </summary>
+        public static ObjectCache Cache { get; set; }
+
         /// <summary>
         /// Gets or sets the application tray icon handler.
         /// </summary>
@@ -113,6 +124,7 @@ namespace FirefoxPrivateNetwork
             InitializeWlanWatcher();
             InitializeCaptivePortalDetector();
             InitializeUIUpdaters();
+            InitializeCache();
         }
 
         /// <summary>
@@ -249,6 +261,58 @@ namespace FirefoxPrivateNetwork
         public static void InitializeSettings()
         {
             Settings = new Settings(ProductConstants.SettingsFile);
+        }
+
+        /// <summary>
+        /// Initializes cache for avatar image.
+        /// </summary>
+        public static void InitializeCache()
+        {
+            Cache = MemoryCache.Default;
+
+            if (Account.LoginState == FxA.LoginState.LoggedIn)
+            {
+                CacheItemPolicy policy = new CacheItemPolicy();
+
+                Task.Run(() =>
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        var image = new BitmapImage();
+
+                        if (Account.Config.FxALogin.User.Avatar != null)
+                        {
+                            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(Account.Config.FxALogin.User.Avatar);
+
+                            try
+                            {
+                                using (HttpWebResponse response = (HttpWebResponse)req.GetResponse())
+                                {
+                                    image = new BitmapImage(new Uri(Account.Config.FxALogin.User.Avatar));
+                                }
+                            }
+                            catch (WebException)
+                            {
+                                image = new BitmapImage(new Uri(Path.Combine(Environment.CurrentDirectory, @"..\..\..\src\UI\Resources\Icons\Generic\default.png")));
+                            }
+                        }
+                        else
+                        {
+                            image = new BitmapImage(new Uri(Path.Combine(Environment.CurrentDirectory, @"..\..\..\src\UI\Resources\Icons\Generic\default.png")));
+                        }
+
+                        Cache.Set("avatarImage", image, policy);
+                    });
+                });
+            }
+        }
+
+        /// <summary>
+        /// Initializes cache for avatar image.
+        /// </summary>
+        public static void ClearCache()
+        {
+            Cache.Remove("avatarImage");
         }
     }
 }
