@@ -96,35 +96,18 @@ namespace FirefoxPrivateNetwork.UI.Components
                 {
                     var image = Manager.Cache.Get("avatarImage");
 
-                    if (image != null)
-                    {
-                        return (BitmapImage)image;
-                    }
-                    else
+                    if (image == null)
                     {
                         CacheItemPolicy policy = new CacheItemPolicy();
-
-                        HttpWebRequest req = (HttpWebRequest)WebRequest.Create(Manager.Account.Config.FxALogin.User.Avatar);
-
-                        try
-                        {
-                            using (HttpWebResponse response = (HttpWebResponse)req.GetResponse())
-                            {
-                                image = new BitmapImage(new Uri(Manager.Account.Config.FxALogin.User.Avatar));
-                            }
-
-                            Manager.Cache.Set("avatarImage", image, policy);
-                            return (BitmapImage)image;
-                        }
-                        catch (Exception e)
-                        {
-                            ErrorHandling.ErrorHandler.Handle(e, ErrorHandling.LogLevel.Debug);
-                        }
+                        image = Manager.GetAvatarImageWithURL();
+                        Manager.Cache.Set("avatarImage", image, policy);
                     }
+
+                    return (BitmapImage)image;
                 }
             }
 
-            return new BitmapImage(new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, @"..\..\..\src\UI\Resources\Icons\Generic\default-avatar.png")));
+            return Manager.GetDefaultAvatarImage();
         }
 
         private void NavigateSettings(object sender, RoutedEventArgs e)

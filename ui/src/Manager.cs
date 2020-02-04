@@ -246,6 +246,46 @@ namespace FirefoxPrivateNetwork
         }
 
         /// <summary>
+
+        /// Gets the default avatar image.
+        /// </summary>
+        /// <returns>
+        /// Default avatar image.
+        /// </returns>
+        public static BitmapImage GetDefaultAvatarImage()
+        {
+            return new BitmapImage(new Uri("pack://application:,,,/UI/Resources/Icons/Generic/default-avatar.png"));
+        }
+
+        /// <summary>
+        /// Gets the avatar image from Url.
+        /// </summary>
+        /// <returns>
+        /// User's avatar image.
+        /// </returns>
+        public static BitmapImage GetAvatarImageWithURL()
+        {
+            var image = new BitmapImage();
+
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(Account.Config.FxALogin.User.Avatar);
+
+            try
+            {
+                using (HttpWebResponse response = (HttpWebResponse)req.GetResponse())
+                {
+                    image = new BitmapImage(new Uri(Account.Config.FxALogin.User.Avatar));
+                }
+            }
+            catch (Exception e)
+            {
+                ErrorHandling.ErrorHandler.Handle(e, ErrorHandling.LogLevel.Debug);
+                image = GetDefaultAvatarImage();
+            }
+
+            return image;
+        }
+
+        /// <summary>
         /// Initializes cache.
         /// </summary>
         public static void InitializeCache()
@@ -264,23 +304,11 @@ namespace FirefoxPrivateNetwork
 
                         if (Account.Config.FxALogin.User.Avatar != null)
                         {
-                            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(Account.Config.FxALogin.User.Avatar);
-
-                            try
-                            {
-                                using (HttpWebResponse response = (HttpWebResponse)req.GetResponse())
-                                {
-                                    image = new BitmapImage(new Uri(Account.Config.FxALogin.User.Avatar));
-                                }
-                            }
-                            catch (WebException)
-                            {
-                                image = new BitmapImage(new Uri(Path.Combine(Environment.CurrentDirectory, @"..\..\..\src\UI\Resources\Icons\Generic\default-avatar.png")));
-                            }
+                            image = GetAvatarImageWithURL();
                         }
                         else
                         {
-                            image = new BitmapImage(new Uri(Path.Combine(Environment.CurrentDirectory, @"..\..\..\src\UI\Resources\Icons\Generic\default-avatar.png")));
+                            image = GetDefaultAvatarImage();
                         }
 
                         Cache.Set("avatarImage", image, policy);
