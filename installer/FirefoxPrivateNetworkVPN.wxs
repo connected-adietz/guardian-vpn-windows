@@ -90,6 +90,15 @@
 					Arguments="broker"
 					ErrorControl="normal"
 					Vital="yes" />
+
+				<util:ServiceConfig 
+					ServiceName="FirefoxPrivateNetworkVPNBroker" 
+					FirstFailureActionType="restart" 
+					SecondFailureActionType="restart" 
+					ThirdFailureActionType="none" 
+					ResetPeriodInDays="1" 
+					RestartServiceDelayInSeconds="5" />
+
 				<ServiceControl Id="StartService" Start="install" Stop="both" Remove="both" Name="FirefoxPrivateNetworkVPNBroker" Wait="yes" />
 
 				<!-- Remove Tunnel Service, if running -->
@@ -126,9 +135,10 @@
 		<!--
 			Force application closed
 		-->
-		<util:CloseApplication Id="CloseApplication" Target="FirefoxPrivateNetworkVPN.exe" RebootPrompt="no" TerminateProcess="0" Timeout="1" />
+		<Property Id="QtExecCmdLine" Value='"[#SystemFolder]taskkill.exe" /F /IM FirefoxPrivateNetworkVPN.exe'/>
+		<CustomAction Id="CloseApplication" BinaryKey="WixCA" DllEntry="CAQuietExec" Execute="immediate" Return="ignore"/>
 		<InstallExecuteSequence>
-			<Custom Action="WixCloseApplications" After="StopServices" />
+			<Custom Action="CloseApplication" After="StopServices" />
 		</InstallExecuteSequence>
 	</Product>
 </Wix>

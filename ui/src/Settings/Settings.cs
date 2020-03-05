@@ -37,6 +37,7 @@ namespace FirefoxPrivateNetwork
                 fxa = default(FxASettings);
                 language = default(LanguageSettings);
                 network = default(NetworkSettings);
+                network.EnableIPv6 = true;
                 ProductConstants.LoadFxAUrls();
             }
 
@@ -90,8 +91,8 @@ namespace FirefoxPrivateNetwork
             InputSettingsConfig(iniData, "Network", "CaptivePortalDetectionIp", Network.CaptivePortalDetectionIp.ToString());
             InputSettingsConfig(iniData, "Network", "AllowLocalDeviceAccess", Network.AllowLocalDeviceAccess.ToString());
             InputSettingsConfig(iniData, "Network", "EnableIPv6", Network.EnableIPv6.ToString());
-            InputSettingsConfig(iniData, "Network", "IPv4Address", Network.IPv4Address.ToString());
-            InputSettingsConfig(iniData, "Network", "IPv6Address", Network.IPv6Address.ToString());
+            InputSettingsConfig(iniData, "Network", "IPv4Address", Network.IPv4Address);
+            InputSettingsConfig(iniData, "Network", "IPv6Address", Network.IPv6Address);
 
             return iniData.ToString();
         }
@@ -204,6 +205,13 @@ namespace FirefoxPrivateNetwork
             {
                 networkSettings.EnableIPv6 = bool.Parse(data["Network"]["EnableIPv6"]);
             }
+<<<<<<< HEAD
+=======
+            else
+            {
+                networkSettings.EnableIPv6 = true;
+            }
+>>>>>>> f6c1e8e667ed2577ff02c98b19cf6e289d17a33b
 
             if (ContainsSettingsConfig(data, "Network", "IPv4Address"))
             {

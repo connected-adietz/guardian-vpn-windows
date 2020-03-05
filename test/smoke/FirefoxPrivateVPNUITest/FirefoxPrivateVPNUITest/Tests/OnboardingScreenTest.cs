@@ -4,8 +4,6 @@
 
 namespace FirefoxPrivateVPNUITest
 {
-    using System;
-    using System.Threading;
     using FirefoxPrivateVPNUITest.Screens;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -19,13 +17,18 @@ namespace FirefoxPrivateVPNUITest
         private BrowserSession browser;
 
         /// <summary>
-        /// Initialize vpn client sessions.
+        /// Initialize vpn client and browser sessions.
         /// </summary>
         [TestInitialize]
         public void TestInitialize()
         {
             this.browser = new BrowserSession();
             this.vpnClient = new FirefoxPrivateVPNSession();
+
+            // Resize browser to make vpn client and browser are not overlapped
+            var vpnClientPosition = this.vpnClient.Session.Manage().Window.Position;
+            var vpnClientSize = this.vpnClient.Session.Manage().Window.Size;
+            this.browser.SetWindowPosition(vpnClientPosition.X + vpnClientSize.Width, 0);
         }
 
         /// <summary>
@@ -87,7 +90,6 @@ namespace FirefoxPrivateVPNUITest
             this.vpnClient.Session.SwitchTo();
             MainScreen mainScreen = new MainScreen(this.vpnClient.Session);
             Assert.AreEqual("VPN is off", mainScreen.GetTitle());
-            mainScreen.ClickSettingsButton();
 
             // Setting Screen
             UserCommonOperation.UserSignOut(this.vpnClient);

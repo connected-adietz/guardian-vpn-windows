@@ -4,6 +4,8 @@
 
 namespace FirefoxPrivateVPNUITest.Screens
 {
+    using System;
+    using System.Threading;
     using OpenQA.Selenium.Appium;
     using OpenQA.Selenium.Appium.Windows;
 
@@ -14,7 +16,8 @@ namespace FirefoxPrivateVPNUITest.Screens
     {
         private AppiumWebElement titleElement;
         private AppiumWebElement subtitleElement;
-        private AppiumWebElement settingButton;
+        private AppiumWebElement vpnOffSettingButton;
+        private AppiumWebElement vpnOnSettingButton;
         private AppiumWebElement vpnSwitch;
         private AppiumWebElement serverListButton;
         private AppiumWebElement deviceListButton;
@@ -28,8 +31,10 @@ namespace FirefoxPrivateVPNUITest.Screens
         {
             this.titleElement = vpnSession.FindElementByClassName("HeroText");
             this.subtitleElement = vpnSession.FindElementByClassName("HeroSubText");
-            this.settingButton = vpnSession.FindElementByName("Settings");
-            this.vpnSwitch = vpnSession.FindElementByName("Toggle VPN");
+            var settingButtons = vpnSession.FindElementsByName("Settings");
+            this.vpnOffSettingButton = settingButtons[0];
+            this.vpnOnSettingButton = settingButtons[1];
+            this.vpnSwitch = vpnSession.FindElementByName("Toggle");
             this.serverListButton = vpnSession.FindElementByAccessibilityId("ConnectionNavButton");
             this.deviceListButton = vpnSession.FindElementByName("My devices");
             this.vpnStatus = vpnSession.FindElementByName("VPN status");
@@ -58,7 +63,14 @@ namespace FirefoxPrivateVPNUITest.Screens
         /// </summary>
         public void ClickSettingsButton()
         {
-            this.settingButton.Click();
+            if (this.vpnOnSettingButton.Displayed)
+            {
+                this.vpnOnSettingButton.Click();
+            }
+            else
+            {
+                this.vpnOffSettingButton.Click();
+            }
         }
 
         /// <summary>
@@ -67,6 +79,9 @@ namespace FirefoxPrivateVPNUITest.Screens
         public void ToggleVPNSwitch()
         {
             this.vpnSwitch.Click();
+
+            // There is frozen state after toggle. We need to sleep at least 1.5 seconds here.
+            Thread.Sleep(TimeSpan.FromSeconds(1.5));
         }
 
         /// <summary>

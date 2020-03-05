@@ -92,7 +92,6 @@ namespace FirefoxPrivateNetwork.FxA
                 // Gets index of a random server in the default server country
                 Random rand = new Random();
                 var serversInDefaultServerCounty = vpnServers.Where(x => x.Value.Country == DefaultServerCountry).ToDictionary(x => x.Key, x => x.Value);
-                serverIndex = serversInDefaultServerCounty.ElementAt(rand.Next(0, serversInDefaultServerCounty.Count)).Key;
 
                 if (serversInDefaultServerCounty.Count() > 0)
                 {
@@ -323,7 +322,7 @@ namespace FirefoxPrivateNetwork.FxA
         /// <summary>
         /// Chooses a server from the selected server city according to server weights.
         /// </summary>
-        /// <param name="serverCityItem">Selected server city for connection</param>
+        /// <param name="serverCityItem">Selected server city for connection.</param>
         /// <returns>VPN server selected for connection.</returns>
         public VPNServer SelectServer(Models.CityServerListItem serverCityItem)
         {

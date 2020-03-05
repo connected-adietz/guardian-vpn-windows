@@ -5,6 +5,8 @@
 namespace FirefoxPrivateVPNUITest
 {
     using System;
+    using System.Drawing;
+    using System.Threading;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Appium.Windows;
@@ -38,16 +40,14 @@ namespace FirefoxPrivateVPNUITest
                 catch (Exception)
                 {
                     // 1. Creating a Desktop session
-                    DesiredCapabilities desktopAppCapabilities = new DesiredCapabilities();
-                    desktopAppCapabilities.SetCapability("app", "Root");
-                    var desktopSession = new WindowsDriver<WindowsElement>(new Uri(WindowsApplicationDriverUrl), desktopAppCapabilities);
+                    var desktopSession = new DesktopSession();
                     bool retry = true;
                     int retryTimes = 0;
                     IWebElement firefoxWindows = null;
                     while (retry)
                     {
                         retryTimes += 1;
-                        WebDriverWait wait = new WebDriverWait(desktopSession, TimeSpan.FromSeconds(600));
+                        WebDriverWait wait = new WebDriverWait(desktopSession.Session, TimeSpan.FromSeconds(60));
                         firefoxWindows = wait.Until(ExpectedConditions.ElementExists(By.ClassName("MozillaWindowClass")));
                         if (firefoxWindows == null)
                         {
@@ -91,11 +91,44 @@ namespace FirefoxPrivateVPNUITest
             if (this.Session != null)
             {
                 this.Session.Close();
-                WindowsElement closeButton = this.Session.FindElementByName("Close Tabs");
-                closeButton.Click();
+                try
+                {
+                    WindowsElement closeButton = this.Session.FindElementByName("Close Tabs");
+                    closeButton.Click();
+                }
+                catch (InvalidOperationException)
+                {
+                }
+
                 this.Session.Quit();
                 this.Session = null;
             }
+        }
+
+        /// <summary>
+        /// Get current url on browser.
+        /// </summary>
+        /// <returns>The url string.</returns>
+        public string GetCurrentUrl()
+        {
+            Utils.WaitUntilFindElement(this.Session.FindElementByAccessibilityId, "reload-button");
+            var urlInput = this.Session.FindElementByAccessibilityId("urlbar-input");
+            return urlInput.Text;
+        }
+
+        /// <summary>
+        /// Set windows to a new postion.
+        /// </summary>
+        /// <param name="x">The x position.</param>
+        /// <param name="y">The y position.</param>
+        public void SetWindowPosition(int x, int y)
+        {
+            int offset = 100;
+            this.Session.Manage().Window.Position = new Point(x + offset, y + offset);
+            var windowPosition = this.Session.Manage().Window.Position;
+            Assert.IsNotNull(windowPosition);
+            Assert.AreEqual(x + offset, windowPosition.X);
+            Assert.AreEqual(y + offset, windowPosition.Y);
         }
     }
 }

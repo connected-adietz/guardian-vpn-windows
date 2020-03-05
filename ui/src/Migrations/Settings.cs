@@ -27,6 +27,12 @@ namespace FirefoxPrivateNetwork.Migrations
         {
         }
 
+        private enum AddressType
+        {
+            IPv4,
+            IPv6,
+        }
+
         /// <summary>
         /// Write IPv4 and IPv6 addresses to settings file from config if they are not already there.
         /// </summary>
@@ -50,7 +56,8 @@ namespace FirefoxPrivateNetwork.Migrations
 
                 if (!networkData.Keys.ContainsKey("IPv4Address") || data["Network"]["IPv4Address"] == string.Empty)
                 {
-                    ipAddress = GetAddressFromConfig("IPv4");
+
+                    ipAddress = GetAddressFromConfig(AddressType.IPv4);
 
                     if (ipAddress != string.Empty)
                     {
@@ -61,7 +68,7 @@ namespace FirefoxPrivateNetwork.Migrations
 
                 if (!networkData.Keys.ContainsKey("IPv6Address") || data["Network"]["IPv6Address"] == string.Empty)
                 {
-                    ipAddress = GetAddressFromConfig("IPv6");
+                    ipAddress = GetAddressFromConfig(AddressType.IPv6);
 
                     if (ipAddress != string.Empty)
                     {
@@ -90,9 +97,9 @@ namespace FirefoxPrivateNetwork.Migrations
         /// <summary>
         /// Gets IP address from config file.
         /// </summary>
-        /// <param name="version">IP version address to be returned (IPv4 or IPv6).</param>
+        /// <param name="type">IP version address to be returned (IPv4 or IPv6).</param>
         /// <returns>Address of requested IP version.</returns>
-        public string GetAddressFromConfig(string version)
+        private string GetAddressFromConfig(AddressType type)
         {
             string filePath = ProductConstants.FirefoxPrivateNetworkConfFile;
 
@@ -108,14 +115,16 @@ namespace FirefoxPrivateNetwork.Migrations
 
                 foreach (var addr in addresses)
                 {
-                    if (addr != string.Empty)
+                    if (addr == string.Empty)
                     {
-                        ipAddress = IPAddress.Parse(addr.Split('/')[0]);
+                        continue;
+                    }
 
-                        if (CheckCorrectAddress(version, ipAddress))
-                        {
-                            return addr;
-                        }
+                    bool parsedIP = IPAddress.TryParse(addr.Split('/')[0], out ipAddress);
+
+                    if (parsedIP && CheckCorrectAddress(type, ipAddress))
+                    {
+                        return addr;
                     }
                 }
             }
@@ -123,10 +132,10 @@ namespace FirefoxPrivateNetwork.Migrations
             return string.Empty;
         }
 
-        private bool CheckCorrectAddress(string version, IPAddress address)
+        private bool CheckCorrectAddress(AddressType type, IPAddress address)
         {
-            return (version == "IPv4" && address.AddressFamily == AddressFamily.InterNetwork)
-                || (version == "IPv6" && address.AddressFamily == AddressFamily.InterNetworkV6);
+            return (type == AddressType.IPv4 && address.AddressFamily == AddressFamily.InterNetwork)
+                || (type == AddressType.IPv6 && address.AddressFamily == AddressFamily.InterNetworkV6);
         }
     }
 }

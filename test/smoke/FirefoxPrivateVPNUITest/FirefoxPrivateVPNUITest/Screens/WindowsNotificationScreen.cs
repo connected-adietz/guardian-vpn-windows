@@ -25,7 +25,7 @@ namespace FirefoxPrivateVPNUITest.Screens
         {
             try
             {
-                WindowsElement notification = desktopSession.FindElementByAccessibilityId("NormalToastView");
+                WindowsElement notification = Utils.WaitUntilFindElement(desktopSession.FindElementByAccessibilityId, "NormalToastView");
                 this.titleText = notification.FindElementByAccessibilityId("TitleText");
                 this.messageText = notification.FindElementByAccessibilityId("MessageText");
                 this.dismissButton = notification.FindElementByAccessibilityId("DismissButton");
@@ -33,12 +33,12 @@ namespace FirefoxPrivateVPNUITest.Screens
             catch (Exception)
             {
                 desktopSession.FindElementByName("Action Center").Click();
-                var actionCenterWindow = desktopSession.FindElementByName("Action center");
+                var actionCenterWindow = Utils.WaitUntilFindElement(desktopSession.FindElementByName, "Action center");
                 var notification = actionCenterWindow.FindElementByName("Notifications from Firefox Private Network VPN");
                 var latestNotification = notification.FindElementByClassName("ListViewItem");
                 this.titleText = latestNotification.FindElementByAccessibilityId("Title");
                 this.messageText = latestNotification.FindElementByAccessibilityId("Content");
-                this.dismissButton = notification.FindElementByAccessibilityId("DismissButton");
+                this.dismissButton = latestNotification.FindElementByAccessibilityId("DismissButton");
             }
         }
 
